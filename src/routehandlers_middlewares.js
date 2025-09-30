@@ -63,6 +63,30 @@ app.get("/admin/deleteAllData",(req,res) => {
     res.send('All data deleted successfully.');
 })
 
+// Error handling middleware
+
+app.get("/getUserData",(req,res) => {
+
+    throw new Error('Something went wrong while fetching user data');
+    res.send('User data');
+})
+
+app.use("/",(err,req,res,next) => {
+    if(err){
+        res.status(500).send("Something went wrong");
+    }
+})
+
+app.get("/getUserData1",(req,res) => {
+    try {
+        throw new Error('Something went wrong while fetching user data');
+        res.send('User data');
+    }
+    catch(err){
+        res.status(500).send("Something went wrong for data1");
+    }
+})
+
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
 })
