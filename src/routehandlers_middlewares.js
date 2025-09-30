@@ -71,6 +71,9 @@ app.get("/getUserData",(req,res) => {
     res.send('User data');
 })
 
+// Should be after all the routes
+// 4 parameters - err, req, res, next
+// If we have 4 parameters, express will treat it as an error handling middleware
 app.use("/",(err,req,res,next) => {
     if(err){
         res.status(500).send("Something went wrong");
