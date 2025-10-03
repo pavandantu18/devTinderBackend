@@ -29,6 +29,100 @@ app.post("/signup",async (req,res) => {
 
 })
 
+// Get user by email API - GET /
+app.get("/user", async (req,res) => {
+    try {
+        const userEmail = req.body.emailId;
+        const user = await UserModel.findOne({emailId: userEmail})
+        if(user) {
+            res.send(user)
+        } else {
+            res.status(404).send("User not found")
+        }
+    } catch(err) {
+        res.status(400).send("Error fetching user by email")
+    }
+})
+
+// FEED API - Get /feed - get all users from the database
+app.get("/feed", async (req,res) => {
+    try {
+        const users = await UserModel.find({})
+        res.send(users)
+    } catch(err) {
+        res.status(400).send("Error fetching users:")
+    }
+})
+
+// Delete user by ID - DELETE /user
+app.delete("/user",async (req,res) => {
+    const userId = req.body.userId
+    try {
+        // const user = await UserModel.findByIdAndDelete({_id : userId})
+        const user = await UserModel.findByIdAndDelete(userId)
+
+        if(user) {
+            res.send("User deleted successfully")
+        } else {
+            res.status(404).send("User not found")
+        }
+        
+    } catch(err) {
+        res.status(400).send("Error deleting the user")
+    }
+})
+
+// Delete user by email - DELETE /user
+
+app.delete("/userEmail", async (req,res) => {
+    const userEmail = req.body.emailId
+    console.log(userEmail);
+    try {
+        const user = await UserModel.findOneAndDelete({emailId: userEmail})
+        if(user) {
+            res.send("User deleted successfully by email")
+        } else {
+            res.status(404).send("User not found")
+        }
+    }
+    catch(err) {
+        res.status(400).send("Error deleting user by email")
+    }
+})
+
+// Update user by ID - PATCH /user
+
+app.patch("/user", async (req,res) => {
+    const userId = req.body.userId
+    const data = req.body
+    try {
+        // const user = await UserModel.findByIdAndUpdate(userId, data)
+        const user = await UserModel.findByIdAndUpdate({_id : userId}, data)
+        if(user) {
+            res.send("User updated successfully by ID")
+        } else {
+            res.status(404).send("User not found")
+        }
+    } catch(err) {
+        res.status(400).send("Error updating user by ID")
+    }
+})
+
+// Update user by email - PATCH /userEmail
+app.patch("/userEmail", async (req,res) => {
+    const userEmail = req.body.emailId
+    const data = req.body
+    try {
+        const user = await UserModel.findOneAndUpdate({emailId: userEmail}, data)
+        if(user) {
+            res.send("User updated successfully by email")
+        } else {
+            res.status(404).send("User not found")
+        }
+    } catch(err) {
+        res.status(400).send("Error updating user by email")
+    }   
+})
 
 connectDB().then(() => {
     console.log("Connected to MongoDB");
