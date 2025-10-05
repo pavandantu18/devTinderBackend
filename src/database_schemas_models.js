@@ -2,6 +2,8 @@ const express = require('express');
 const connectDB = require("./config/database");
 const app = express();
 const UserModel = require("./models/user");
+const { validateSignUpData } = require('./utils/validation');
+const bcrypt = require('bcrypt');
 
 app.use(express.json());
 
@@ -16,15 +18,51 @@ app.post("/signup",async (req,res) => {
     //     gender: "Male"
     // }
 
-    // Creating a new user model instance
-    
-    // const user = new UserModel(userObj);
-    const user = new UserModel(req.body);
+    // Validation of data
     try {
-    await user.save()
-    res.send("User signed up successfully")
+        validateSignUpData(req);
+
+        const {firstName, lastName, emailId, password } = req.body;
+
+        // Encrpt the password
+        const passwordHash = await bcrypt.hash(password, 10);
+
+
+        // Creating a new user model instance
+        
+        // const user = new UserModel(userObj);
+        const user = new UserModel({
+            firstName,
+            lastName,
+            emailId,
+            password : passwordHash
+        });
+        
+        await user.save()
+        res.send("User signed up successfully")
     } catch(err) {
         res.status(400).send("Error saving the user:" + err.message)
+    }
+
+})
+
+app.post("/login", async (req,res) => {
+    
+    try {
+        const { emailId, password } = req.body;
+
+        const user = await UserModel.findOne({emailId: emailId})
+        if(!user) {
+            return res.status(404).send("User not found")
+        }
+        const isPasswordMatch = await bcrypt.compare(password, user.password)
+        if(!isPasswordMatch) {
+            return res.status(401).send("Invalid credentials")
+        } else {
+            res.send("User logged in successfully")
+        }
+    } catch(err) {
+        res.status(400).send("Error logging in the user")
     }
 
 })
